@@ -33,7 +33,13 @@ end
 data_sound_intensity = audio_sound_intensity(input_wav_file);
 
 % Power
-data_power = audio_power(input_wav_file, input_frame_length, input_frame_non_overlap, 'cubic');
+%
+% ... segmenting the audio signal into 50% overlapping time frames of 50 ms width
+% and then calculating the average power of each window ...
+%
+% by:
+% Multi-Variate EEG Analysis as a Novel Tool to Examine Brain Responses to Naturalistic Music
+data_power = audio_power(input_wav_file, 0.05, 0.025, 'cubic');
 
 % Sharpness
 data_sharpness = audio_sharpness(data_power);
