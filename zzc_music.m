@@ -47,6 +47,8 @@ data_sharpness = audio_sharpness(data_power);
 % frame & envelope
 map_audio = miraudio(input_wav_file);
 map_frame = mirframe(map_audio, 'Length', input_frame_length, 's', 'Hop', input_frame_non_overlap, 's');
+data_frame = mirgetdata(map_frame);
+data_frame_number = size(data_frame, 2);
 
 % Spectral Centroid
 map_spectral_centroid = mircentroid(map_frame);
@@ -68,28 +70,23 @@ data_key_clarity = mirgetdata(map_key_clarity);
 map_mode = mirmode(map_frame);
 data_mode = mirgetdata(map_mode);
 
-% envelope & cheat
-map_envelope = mirenvelope(map_audio, 'Tau', 0.02);
-envelop_temp = mirgetdata(map_envelope);
-wavwrite(envelop_temp, sample_rate / 16, 'temp.wav');
-audio_temp = miraudio('temp.wav');
-frame_temp = mirframe(audio_temp, 'Length', input_frame_length, 's', 'Hop', input_frame_non_overlap, 's');
-
-% Fluctuation Centroid
-map_fluctuation_centroid = mircentroid(frame_temp);
-data_fluctuation_centroid = mirgetdata(map_fluctuation_centroid);
-
-% Fluctuation Entropy
-map_fluctuation_entropy = mirentropy(frame_temp);
-data_fluctuation_entropy = mirgetdata(map_fluctuation_entropy);
-
-% Pulse Clarity
-map_pulse_clarity = mirpulseclarity(map_audio, 'Frame', input_frame_length, 's', input_frame_non_overlap, 's');
-data_pulse_clarity = mirgetdata(map_pulse_clarity);
+% Fluctuation Centroid & Fluctuation Entropy
+%
+% This part is written originally by Wang Deqing <deqing.wang@foxmail.com>.
+% Some modifications have been added.
+data_fluctuation_centroid = zeros(data_frame_number ,1);
+data_fluctuation_entropy = zeros(data_frame_number ,1);
+for index = 0 : data_frame_number - 1
+    excerpt_0 = miraudio(input_wav_file, 'Extract', index, index + 3);
+    excerpt = mirframe(excerpt_0, 'Length', 3, 's', 'Hop', 1/3,'/1');
+    fluc = mirfluctuation(excerpt,'summary');
+    d_fluc = mirgetdata(fluc);
+    data_fluctuation_centroid(index + 1) = audio_fluctuation_centroid(d_fluc);
+    data_fluctuation_entropy(index + 1) = audio_fluctuation_entropy(d_fluc);
+end
 
 % clear
-clear sample_rate audio_temp frame_temp envelop_temp
-delete('temp.wav');
+clear excerpt_0 excerpt index fluc d_fluc
 
 % output
 disp 'All Finished.'
