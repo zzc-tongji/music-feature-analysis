@@ -52,23 +52,23 @@ data_frame_number = size(data_frame, 2);
 
 % Spectral Centroid
 map_spectral_centroid = mircentroid(map_frame);
-data_spectral_centroid = mirgetdata(map_spectral_centroid);
+data_spectral_centroid = mirgetdata(map_spectral_centroid)';
 
 % Spectral Entropy
 map_spectral_entropy = mirentropy(map_frame);
-data_spectral_entropy = mirgetdata(map_spectral_entropy);
+data_spectral_entropy = mirgetdata(map_spectral_entropy)';
 
 % Spectral Flux
 map_spectral_flux = mirflux(map_frame);
-data_spectral_flux = mirgetdata(map_spectral_flux);
+data_spectral_flux = mirgetdata(map_spectral_flux)';
 
 % Key Clarity
 [~, map_key_clarity, ~] = mirkey(map_frame);
-data_key_clarity = mirgetdata(map_key_clarity);
+data_key_clarity = mirgetdata(map_key_clarity)';
 
 % Mode
 map_mode = mirmode(map_frame);
-data_mode = mirgetdata(map_mode);
+data_mode = mirgetdata(map_mode)';
 
 % Fluctuation Centroid & Fluctuation Entropy
 %
@@ -87,10 +87,40 @@ end
 
 % Pulse Clarity
 map_pulse_clarity = mirpulseclarity(map_audio, 'Frame', input_frame_length, 's', input_frame_non_overlap, 's');
-data_pulse_clarity = mirgetdata(map_pulse_clarity);
+data_pulse_clarity = mirgetdata(map_pulse_clarity)';
+
+% summary
+summary_data = zeros(data_frame_number, 8);
+for index = 1 : length(data_spectral_centroid)
+    summary_data(index, 1) = data_spectral_centroid(index);
+end
+for index = 1 : length(data_spectral_entropy)
+    summary_data(index, 2) = data_spectral_entropy(index);
+end
+for index = 1 : length(data_spectral_flux)
+    summary_data(index, 3) = data_spectral_flux(index);
+end
+for index = 1 : length(data_key_clarity)
+    summary_data(index, 4) = data_key_clarity(index);
+end
+for index = 1 : length(data_mode)
+    summary_data(index, 5) = data_mode(index);
+end
+for index = 1 : length(data_fluctuation_centroid)
+    summary_data(index, 6) = data_fluctuation_centroid(index);
+end
+for index = 1 : length(data_fluctuation_entropy)
+    summary_data(index, 7) = data_fluctuation_entropy(index);
+end
+for index = 1 : length(data_pulse_clarity)
+    summary_data(index, 8) = data_pulse_clarity(index);
+end
+summary_title = {'spec_centroid', 'spec_entropy', 'spec_flux', ...
+    'key_clarity', 'mode', 'fluc_centroid', ...
+    'fluc_entropy', 'pulse_clarity'};
 
 % clear
-clear sample_rate data_frame map_audio map_frame excerpt_0 excerpt index fluc d_fluc
+clear sample_rate map_audio map_frame excerpt_0 excerpt index fluc d_fluc index data_*
 
 % output
 disp 'All Finished.'
