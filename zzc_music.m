@@ -86,7 +86,7 @@ for index = 0 : data_frame_number - 1
 end
 
 % clear
-clear excerpt_0 excerpt index fluc d_fluc
+clear sample_rate data_frame map_audio map_frame excerpt_0 excerpt index fluc d_fluc
 
 % output
 disp 'All Finished.'
