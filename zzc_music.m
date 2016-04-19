@@ -85,6 +85,10 @@ for index = 0 : data_frame_number - 1
     data_fluctuation_entropy(index + 1) = audio_fluctuation_entropy(d_fluc);
 end
 
+% Pulse Clarity
+map_pulse_clarity = mirpulseclarity(map_audio, 'Frame', input_frame_length, 's', input_frame_non_overlap, 's');
+data_pulse_clarity = mirgetdata(map_pulse_clarity);
+
 % clear
 clear sample_rate data_frame map_audio map_frame excerpt_0 excerpt index fluc d_fluc
 
