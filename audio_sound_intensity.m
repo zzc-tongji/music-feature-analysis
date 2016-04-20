@@ -74,3 +74,5 @@ end
 
 % set time
 sound_intensity(:, 2) = sound_intensity(:, 2) / sample_rate;
+
+end

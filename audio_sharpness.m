@@ -24,3 +24,5 @@ for index = 2 : loop_end_index
                             (power(index, 2) - power(index - 1, 2));
 end
 sharpness(:, 2) = power(:, 2);
+
+end

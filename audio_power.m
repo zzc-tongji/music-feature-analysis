@@ -76,3 +76,5 @@ end
 
 % set time
 power_result(:, 2) = power_result(:, 2) / sample_rate;
+
+end
