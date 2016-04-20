@@ -66,8 +66,10 @@ if(nargin == 1)
 else
     sound_intensity(:, 1) = interp1(max_extremum(:, 2), max_extremum(:, 1), sound_intensity(:, 2), method);
 end
+
+% check value
 for index = 1 : loop_end_index
-    if sound_intensity(index, 1) < 0
+    if isnan(sound_intensity(index, 1)) == 1 || sound_intensity(index, 1) < 0
         sound_intensity(index, 1) = 0;
     end
 end
