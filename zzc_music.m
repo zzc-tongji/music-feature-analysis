@@ -1,36 +1,25 @@
-% MAIN PROGRAM
+function [features, sound_intensity, power, sharpness, title] = zzc_music(wav_file)
+%CACULATE MUSIC FEATURES of WAV FILE
 %
-% Running
-%   zzc_music
+%   [features, sound_intensity, power, sharpness, title]
+%      = zzc_music(wav_file)
 %
-% Environment
-%   1. Matlab R2012a
-%   2. MIRtoolbox
-
-% input
-input_wav_file = input('input_wav_file (non-empty filename) = ', 's');
-input_frame_length = input('input_frame_length (double) = ');
-input_frame_non_overlap = input('input_frame_non_overlap (double) = ');
+%   Environment
+%      1. Matlab R2012a
+%      2. MIRtoolbox 1.6
 
 % check parameter
-if ~ischar(input_wav_file) || strcmp(input_wav_file, '')
+if ~ischar(wav_file) || strcmp(wav_file, '')
     clear input_wav_file
     error('Parameter ''input_wav_file'' must be a non-empty string.');
 end
-if ~isfloat(input_frame_length)
-    clear input_wav_file input_frame_length
-    error('Parameter ''input_frame_length'' must be a double.');
-end
-if ~isfloat(input_frame_non_overlap)
-    clear input_wav_file input_frame_length input_frame_non_overlap
-    error('Parameter ''input_frame_non_overlap'' must be a double.');
-end
 
-% sample rate
-[~, sample_rate, ~] = wavread(input_wav_file);
+% set frame information
+frame_length_s = 3;
+frame_non_overlap_s = 1;
 
 % Sound Intensity
-data_sound_intensity = audio_sound_intensity(input_wav_file);
+sound_intensity = audio_sound_intensity(wav_file);
 
 % Power
 %
@@ -39,14 +28,14 @@ data_sound_intensity = audio_sound_intensity(input_wav_file);
 %
 % by:
 % Multi-Variate EEG Analysis as a Novel Tool to Examine Brain Responses to Naturalistic Music
-data_power = audio_power(input_wav_file, 0.05, 0.025, 'cubic');
+power = audio_power(wav_file, 0.05, 0.025);
 
 % Sharpness
-data_sharpness = audio_sharpness(data_power);
+sharpness = audio_sharpness(power);
 
 % frame & envelope
-map_audio = miraudio(input_wav_file);
-map_frame = mirframe(map_audio, 'Length', input_frame_length, 's', 'Hop', input_frame_non_overlap, 's');
+map_audio = miraudio(wav_file);
+map_frame = mirframe(map_audio, 'Length', frame_length_s, 's', 'Hop', frame_non_overlap_s, 's');
 data_frame = mirgetdata(map_frame);
 data_frame_number = size(data_frame, 2);
 
@@ -77,7 +66,7 @@ data_mode = mirgetdata(map_mode)';
 data_fluctuation_centroid = zeros(data_frame_number ,1);
 data_fluctuation_entropy = zeros(data_frame_number ,1);
 for index = 0 : data_frame_number - 1
-    excerpt_0 = miraudio(input_wav_file, 'Extract', index, index + 3);
+    excerpt_0 = miraudio(wav_file, 'Extract', index, index + 3);
     excerpt = mirframe(excerpt_0, 'Length', 3, 's', 'Hop', 1/3,'/1');
     fluc = mirfluctuation(excerpt,'summary');
     d_fluc = mirgetdata(fluc);
@@ -86,41 +75,40 @@ for index = 0 : data_frame_number - 1
 end
 
 % Pulse Clarity
-map_pulse_clarity = mirpulseclarity(map_audio, 'Frame', input_frame_length, 's', input_frame_non_overlap, 's');
+map_pulse_clarity = mirpulseclarity(map_audio, 'Frame', frame_length_s, 's', frame_non_overlap_s, 's');
 data_pulse_clarity = mirgetdata(map_pulse_clarity)';
 
-% summary
-summary_data = zeros(data_frame_number, 8);
+% features
+features = zeros(data_frame_number, 8);
 for index = 1 : length(data_spectral_centroid)
-    summary_data(index, 1) = data_spectral_centroid(index);
+    features(index, 1) = data_spectral_centroid(index);
 end
 for index = 1 : length(data_spectral_entropy)
-    summary_data(index, 2) = data_spectral_entropy(index);
+    features(index, 2) = data_spectral_entropy(index);
 end
 for index = 1 : length(data_spectral_flux)
-    summary_data(index, 3) = data_spectral_flux(index);
+    features(index, 3) = data_spectral_flux(index);
 end
 for index = 1 : length(data_key_clarity)
-    summary_data(index, 4) = data_key_clarity(index);
+    features(index, 4) = data_key_clarity(index);
 end
 for index = 1 : length(data_mode)
-    summary_data(index, 5) = data_mode(index);
+    features(index, 5) = data_mode(index);
 end
 for index = 1 : length(data_fluctuation_centroid)
-    summary_data(index, 6) = data_fluctuation_centroid(index);
+    features(index, 6) = data_fluctuation_centroid(index);
 end
 for index = 1 : length(data_fluctuation_entropy)
-    summary_data(index, 7) = data_fluctuation_entropy(index);
+    features(index, 7) = data_fluctuation_entropy(index);
 end
 for index = 1 : length(data_pulse_clarity)
-    summary_data(index, 8) = data_pulse_clarity(index);
+    features(index, 8) = data_pulse_clarity(index);
 end
-summary_title = {'spec_centroid', 'spec_entropy', 'spec_flux', ...
-    'key_clarity', 'mode', 'fluc_centroid', ...
-    'fluc_entropy', 'pulse_clarity'};
-
-% clear
-clear sample_rate map_audio map_frame excerpt_0 excerpt index fluc d_fluc index data_*
+title = {'spectral_centroid', 'spectral_entropy', 'spectral_flux', ...
+    'key_clarity', 'mode', 'fluctuation_centroid', ...
+    'fluctuation_entropy', 'pulse_clarity'};
 
 % output
 disp 'All Finished.'
+
+end
