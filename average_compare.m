@@ -5,7 +5,7 @@ function result = average_compare(m1, m2)
 %       Parameter 'm1' and 'm2' must be must be two-dimensional matrixes.
 %       If values in m1 is bigger, the return value is positive.
 
-% check paramete
+% check parameter
 s1 = size(m1);
 s2 = size(m2);
 if length(s1) ~= 2 || length(s2) ~= 2
