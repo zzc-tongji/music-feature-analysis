@@ -33,7 +33,7 @@ power = audio_power(wav_file, 0.05, 0.025);
 % Sharpness
 sharpness = audio_sharpness(power);
 
-% frame & envelope
+% frame
 map_audio = miraudio(wav_file);
 map_frame = mirframe(map_audio, 'Length', frame_length_s, 's', 'Hop', frame_non_overlap_s, 's');
 data_frame = mirgetdata(map_frame);
@@ -66,9 +66,8 @@ data_mode = mirgetdata(map_mode)';
 data_fluctuation_centroid = zeros(data_frame_number ,1);
 data_fluctuation_entropy = zeros(data_frame_number ,1);
 for index = 0 : data_frame_number - 1
-    excerpt_0 = miraudio(wav_file, 'Extract', index, index + 3);
-    excerpt = mirframe(excerpt_0, 'Length', 3, 's', 'Hop', 1/3,'/1');
-    fluc = mirfluctuation(excerpt,'summary');
+    segment = miraudio(map_audio, 'Extract', index, index + 3);
+    fluc = mirfluctuation(segment,'summary');
     d_fluc = mirgetdata(fluc);
     data_fluctuation_centroid(index + 1) = audio_fluctuation_centroid(d_fluc);
     data_fluctuation_entropy(index + 1) = audio_fluctuation_entropy(d_fluc);
