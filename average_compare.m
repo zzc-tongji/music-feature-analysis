@@ -3,7 +3,9 @@ function result = average_compare(m1, m2)
 %
 %   result = average_compare(m1, m2)
 %       Parameter 'm1' and 'm2' must be must be two-dimensional matrixes.
-%       If values in m1 is bigger, the return value is positive.
+%       If m1 is bigger than m2, the return value is positive.
+%       The return value is relative, because data ranges of each feature are different.
+%       For example, 0.156 means m1 is 15.6% bigger than m2.
 
 % check parameter
 s1 = size(m1);
