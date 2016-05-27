@@ -23,9 +23,9 @@ Script 'zzc_music.m' can be used to extract some features of the music, such as:
 * fluctuation centroid  
 * fluctuation entropy  
 
-Script 'pure_tone.m' can be used to generate pure tone of any frequency.  
+Script 'zzc_pure_tone.m' can be used to generate pure tone of any frequency.  
 
-Script 'average_compare.m' can be used to compare the average of each feature in different music.  
+Script 'zzc_mean_compare.m' can be used to compare the average of each feature in different music.  
 
 ### Other ###
 
