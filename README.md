@@ -29,5 +29,4 @@ Script 'average_compare.m' can be used to compare the average of each feature in
 
 ### Other ###
 
-* [Music Feature Introduction](https://onedrive.live.com/redir?resid=B4675A3E4D056A93!1102&authkey=!AMM9f2o6fQIBRp4&ithint=folder%2c)  
-* [Music Sample](https://onedrive.live.com/redir?resid=B4675A3E4D056A93!1034&authkey=!ALA37ZnvEXjUEdU&ithint=folder%2cmscz) ('.mscz' file can be opened by [MuseScore](https://musescore.org/))  
+* All lines end up with CRLF (Windows).
