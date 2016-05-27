@@ -1,7 +1,7 @@
-function [wave, sampling_rate] = pure_tone(frequency, time)
+function [wave, sampling_rate] = zzc_pure_tone(frequency, time)
 %GENERATE WAVE of PURE TONE
 %
-%   [wave, sampling_rate] = pure_tone(frequency, time)
+%   [wave, sampling_rate] = zzc_pure_tone(frequency, time)
 %       All parameter must be doubles.
 %       A silent wave will be generate if 'frequency' is not positive.
 
