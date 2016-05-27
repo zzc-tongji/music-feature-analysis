@@ -29,4 +29,4 @@ Script 'average_compare.m' can be used to compare the average of each feature in
 
 ### Other ###
 
-* All lines end up with CRLF (Windows).
+* All lines end up with CRLF (Windows).  
