@@ -1,11 +1,11 @@
-function sound_intensity = audio_sound_intensity(wav_file, method)
+function [sound_intensity, sample_rate] = audio_sound_intensity(wav_file, method)
 %CACULATE SOUND INTENSITY of AUDIO WAVE
 %
-%   sound_intensity = audio_sound_intensity(wav_file)
+%   [sound_intensity, sample_rate] = audio_sound_intensity(wav_file)
 %       Use 'linear' as the default interpolation method in tne end.
-%       Return value 'sound_intensity' is a matrix with 2 line:
-%           1st line - sound intensity
-%           2nd line - time (s)
+%       Return value 'sound_intensity' is a matrix with 2 columns:
+%           1st column - sound intensity
+%           2nd column - time (s)
 %
 %   sound_intensity = audio_sound_intensity(wav_file, method)
 %       Parameter 'method' indicates interpolation method in the end,
@@ -25,7 +25,7 @@ end
 if (nargin == 1)
 elseif (nargin == 2)
     if ~ischar(method) || (~ strcmp(method, 'nearest') && ~ strcmp(method, 'linear') && ~ strcmp(method, 'spline') && ~ strcmp(method, 'pchip') && ~ strcmp(method, 'cubic') && ~ strcmp(method, 'v5cubic'))
-        error('Parameter 2 must be a string which must be one of them: ''linear'', ''''spline, ''pchip'', ''cubic'' or ''v5cubic''.');
+        error('Parameter 2 must be a string which must be one of them: ''linear'', ''spline'', ''pchip'', ''cubic'' or ''v5cubic''.');
     end
 else
     error('There are too much parameters.');
@@ -58,7 +58,7 @@ max_extremum = max_extremum(1 : max_extremum_length, :); % intercept
 
 % interpolate
 sound_intensity = zeros(length(wave), 2);
-for index = 1 : loop_end_index - 1
+for index = 1 : loop_end_index
     sound_intensity(index, 2) = index;
 end
 if(nargin == 1)
