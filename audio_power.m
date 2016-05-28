@@ -17,6 +17,9 @@ end
 if ~isfloat(non_overlap_s)
     error('Parameter 3 must be a double.');
 end
+if frame_s < non_overlap_s
+    error('Parameter 2 should be no less than parameter 3.');
+end
 
 % read .wav file
 [wave, sample_rate, ~] = wavread(wav_file);
