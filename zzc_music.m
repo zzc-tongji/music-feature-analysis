@@ -1,25 +1,41 @@
-function [features, sound_intensity, power, sharpness, title] = zzc_music(wav_file)
+function [features, sound_intensity, power, sharpness, title] = zzc_music(wav_file, frame_length_s, frame_non_overlap_s)
 %CACULATE MUSIC FEATURES of WAV FILE
 %
 %   [features, sound_intensity, power, sharpness, title]
-%      = zzc_music(wav_file)
+%      zzc_music(wav_file, frame_length_s, frame_non_overlap_s)
 %
 %   Environment
 %      1. Matlab R2012a
 %      2. MIRtoolbox 1.6
 
 % check parameter
-if ~ischar(wav_file) || strcmp(wav_file, '')
-    clear input_wav_file
-    error('Parameter ''input_wav_file'' must be a non-empty string.');
-end
 
-% set frame information
-frame_length_s = 3;
-frame_non_overlap_s = 1;
+if nargin == 1
+    if ~ischar(wav_file) || strcmp(wav_file, '')
+        error('Parameter must be a non-empty string.');
+    end
+    frame_length_s = 3;
+    frame_non_overlap_s = 1;
+elseif nargin == 3
+    if ~ischar(wav_file) || strcmp(wav_file, '')
+        error('Parameter 1 must be a non-empty string.');
+    end
+    if ~isfloat(frame_length_s)
+        error('Parameter 2 must be a double.');
+    end
+    if ~isfloat(frame_non_overlap_s)
+        error('Parameter 3 must be a double.');
+    end
+    if frame_length_s < frame_non_overlap_s
+        error('Parameter 2 should be no less than parameter 3.');
+    end
+else
+    error('There must be 1 or 3 parameters.');
+end
 
 % Sound Intensity
 sound_intensity = audio_sound_intensity(wav_file);
+data_sound_intensity = sps_rebuild(sound_intensity, frame_length_s, frame_non_overlap_s);
 
 % Power
 %
@@ -28,10 +44,14 @@ sound_intensity = audio_sound_intensity(wav_file);
 %
 % by:
 % Multi-Variate EEG Analysis as a Novel Tool to Examine Brain Responses to Naturalistic Music
-power = audio_power(wav_file, 0.05, 0.025);
+%
+% A little modify is included: overlapping time is 20 ms.
+power = audio_power(wav_file, 0.05, 0.02);
+data_power = sps_rebuild(power, frame_length_s, frame_non_overlap_s);
 
 % Sharpness
 sharpness = audio_sharpness(power);
+data_sharpness = sps_rebuild(sharpness, frame_length_s, frame_non_overlap_s);
 
 % frame
 map_audio = miraudio(wav_file);
@@ -78,7 +98,7 @@ map_pulse_clarity = mirpulseclarity(map_audio, 'Frame', frame_length_s, 's', fra
 data_pulse_clarity = mirgetdata(map_pulse_clarity)';
 
 % features
-features = zeros(data_frame_number, 8);
+features = zeros(data_frame_number, 11);
 for index = 1 : length(data_spectral_centroid)
     features(index, 1) = data_spectral_centroid(index);
 end
@@ -103,9 +123,19 @@ end
 for index = 1 : length(data_pulse_clarity)
     features(index, 8) = data_pulse_clarity(index);
 end
+for index = 1 : size(features, 1)
+    features(index, 9) = data_sound_intensity(index);
+end
+for index = 1 : size(features, 1)
+    features(index, 10) = data_power(index);
+end
+for index = 1 : size(features, 1)
+    features(index, 11) = data_sharpness(index);
+end
 title = {'spectral_centroid', 'spectral_entropy', 'spectral_flux', ...
     'key_clarity', 'mode', 'fluctuation_centroid', ...
-    'fluctuation_entropy', 'pulse_clarity'};
+    'fluctuation_entropy', 'pulse_clarity', ...
+    'sound_intensity', 'power', 'sharpness'};
 
 % output
 disp 'All Finished.'
