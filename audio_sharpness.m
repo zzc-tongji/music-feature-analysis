@@ -8,8 +8,8 @@ function sharpness = audio_sharpness(power)
 %           2nd column - time (s)
 
 % check parameter
-if ~ismatrix(power)
-    error('Parameter must be a matrix');
+if length(size(power)) ~= 2
+    error('Parameter must be a two-dimensional matrix.');
 end
 
 % calculate sharpness
