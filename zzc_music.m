@@ -141,10 +141,10 @@ disp 'All Finished.'
 
 end
 
-function [sound_intensity, sample_rate] = audio_sound_intensity(wav_file, method)
+function sound_intensity = audio_sound_intensity(wav_file, method)
 %CACULATE SOUND INTENSITY of AUDIO WAVE
 %
-%   [sound_intensity, sample_rate] = audio_sound_intensity(wav_file)
+%   sound_intensity = audio_sound_intensity(wav_file)
 %       Use 'linear' as the default interpolation method in tne end.
 %       Return value 'sound_intensity' is a matrix with 2 columns:
 %           1st column - sound intensity
