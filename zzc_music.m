@@ -2,11 +2,36 @@ function [features, sound_intensity, power, sharpness, title] = zzc_music(wav_fi
 %CACULATE MUSIC FEATURES of WAV FILE
 %
 %   [features, sound_intensity, power, sharpness, title]
-%      = zzc_music(wav_file, frame_length_s, non_overlap_length_s)
+%       = zzc_music(wav_file)
 %
-%   Environment
-%      1. Matlab R2012a
-%      2. MIRtoolbox 1.6
+%   [features, sound_intensity, power, sharpness, title]
+%       = zzc_music(wav_file, frame_length_s, non_overlap_length_s)
+%
+%   ----------
+%
+%   Parameter 'wav_file' is wav file name. It must be a non-empty string.
+%
+%   Parameter 'frame_length_s' indicates the length of each frame (second).
+%       It must be a double, and it should be no less than parameter 'non_overlap_length_s'.
+%       If it is undefined, the default value is 3.
+%
+%   Parameter 'non_overlap_length_s' indicates the length of the non-overlaping part of a frame (second).
+%       It must be a double.
+%       If it is undefined, the default value is 1.
+%
+%   ----------
+%
+%   Return value 'features' is all features caculated. One column indicates one feature.
+%       Their names are indicated in return value 'title'.
+%
+%   Return value 'sound_intensity', 'power' and 'sharpness' are data of
+%       feature of sound_intensity, power and sharpness before reshaping.
+%
+%   Return value 'title' indicates names of all features.
+%
+%   ----------
+%
+%   Running Environment: Matlab R2012a, MIRtoolbox 1.6
 
 % check parameter
 if nargin == 1
@@ -34,23 +59,23 @@ end
 
 % Sound Intensity
 sound_intensity = audio_sound_intensity(wav_file);
-data_sound_intensity = sps_rebuild(sound_intensity, frame_length_s, non_overlap_length_s);
+data_sound_intensity = sps_reshape(sound_intensity, frame_length_s, non_overlap_length_s);
 
-% Power
+%   Power
 %
-% ... segmenting the audio signal into 50% overlapping time frames of 50 ms width
-% and then calculating the average power of each window ...
+%   ... segmenting the audio signal into 50% overlapping time frames of 50 ms width
+%       and then calculating the average power of each window ...
 %
-% by:
-% Multi-Variate EEG Analysis as a Novel Tool to Examine Brain Responses to Naturalistic Music
+%   by: Multi-Variate EEG Analysis as a Novel Tool
+%       to Examine Brain Responses to Naturalistic Music
 %
-% A little modify is included: overlapping time is 20 ms.
+%   A little modify is included: overlapping time is 20 ms.
 power = audio_power(wav_file, 0.05, 0.02);
-data_power = sps_rebuild(power, frame_length_s, non_overlap_length_s);
+data_power = sps_reshape(power, frame_length_s, non_overlap_length_s);
 
 % Sharpness
 sharpness = audio_sharpness(power);
-data_sharpness = sps_rebuild(sharpness, frame_length_s, non_overlap_length_s);
+data_sharpness = sps_reshape(sharpness, frame_length_s, non_overlap_length_s);
 
 % frame
 map_audio = miraudio(wav_file);
@@ -78,10 +103,10 @@ data_key_clarity = mirgetdata(map_key_clarity)';
 map_mode = mirmode(map_frame);
 data_mode = mirgetdata(map_mode)';
 
-% Fluctuation Centroid & Fluctuation Entropy
+%   Fluctuation Centroid & Fluctuation Entropy
 %
-% This part is written originally by Wang Deqing <deqing.wang@foxmail.com>.
-% Some modifications have been added.
+%   This part is written originally by Wang Deqing <deqing.wang@foxmail.com>.
+%       Some modifications have been added.
 data_fluctuation_centroid = zeros(data_frame_number ,1);
 data_fluctuation_entropy = zeros(data_frame_number ,1);
 for index = 0 : data_frame_number - 1
@@ -142,28 +167,38 @@ disp 'All Finished.'
 end
 
 function sound_intensity = audio_sound_intensity(wav_file, method)
-%CACULATE SOUND INTENSITY of AUDIO WAVE
+%CACULATE SOUND INTENSITY of WAV FILE
 %
 %   sound_intensity = audio_sound_intensity(wav_file)
-%       Use 'linear' as the default interpolation method in tne end.
-%       Return value 'sound_intensity' is a matrix with 2 columns:
-%           1st column - sound intensity
-%           2nd column - time (s)
 %
 %   sound_intensity = audio_sound_intensity(wav_file, method)
-%       Parameter 'method' indicates interpolation method in the end,
-%       it must be one of them:
-%          'nearest'  - nearest neighbor interpolation
-%          'linear'   - linear interpolation
-%          'spline'   - piecewise cubic spline interpolation (SPLINE)
-%          'pchip'    - shape-preserving piecewise cubic interpolation
-%          'cubic'    - same as 'pchip'
-%          'v5cubic'  - the cubic interpolation from MATLAB 5, which does not
-%                       extrapolate and uses 'spline' if X is not equally spaced.
+%
+%   ----------
+%
+%   Parameter 'wav_file' is wav file name. It must be a non-empty string.
+%
+%   Parameter 'method' indicates the method of interpolation in the end.
+%       It must be one of them:
+%           1. 'nearest'  - nearest neighbor interpolation
+%           2. 'linear'   - linear interpolation
+%           3. 'spline'   - piecewise cubic spline interpolation (SPLINE)
+%           4. 'pchip'    - shape-preserving piecewise cubic interpolation
+%           5. 'cubic'    - same as 'pchip'
+%           6. 'v5cubic'  - the cubic interpolation from MATLAB 5, which does not extrapolate and uses 'spline' if X is not equally spaced
+%       If it is undefined, use 'linear' as the default interpolation method.
+%
+%   Return value 'sound_intensity' is a matrix with 2 columns:
+%       1st column is sound intensity. 2nd column is time (second).
+%
+%   ----------
+%
+%   Sound intensity, in my opinion, is the linking route of all max-extremum point.
+%       To make the point number of value equal to the point number of wav file,
+%       use interpolation in the end.
 
 % check parameter
 if ~ischar(wav_file) || strcmp(wav_file, '')
-	error('Parameter 1 must be a non-empty string.');
+   error('Parameter 1 must be a non-empty string.');
 end
 if (nargin == 1)
 elseif (nargin == 2)
@@ -174,10 +209,8 @@ else
     error('There are too much parameters.');
 end
 
-% read .wav file
+% read wav file
 [wave, sample_rate, ~] = wavread(wav_file);
-
-% Sound intensity, in my opinion, is the linking route of all max-extremum point.
 
 % difference
 loop_end_index = length(wave);
@@ -187,7 +220,7 @@ for index = 2 : loop_end_index
     difference(index) = wave(index) - wave(index - 1);
 end
 
-% get all all max-extremum point
+% get all max-extremum point
 max_extremum = zeros(loop_end_index, 1);
 max_extremum_length = 0;
 for index = 1 : loop_end_index - 1
@@ -222,39 +255,60 @@ sound_intensity(:, 2) = sound_intensity(:, 2) / sample_rate;
 
 end
 
-function power = audio_power(wav_file, frame_s, non_overlap_s)
-%CACULATE POWER of AUDIO WAVE
+function power = audio_power(wav_file, frame_length_s, non_overlap_length_s)
+%CACULATE POWER of WAV FILE
 %
-%   power_result = audio_power(wav_file, frame_s, non_overlap_s)
-%       Use 'linear' as the default interpolation method in tne end.
-%       Return value 'power' is a matrix with 2 columns:
-%           1st column - power
-%           2nd column - time (s)
+%   power = audio_power(wav_file, frame_length_s, non_overlap_length_s)
+%
+%   ----------
+%
+%   Parameter 'wav_file' is wav file name. It must be a non-empty string.
+%
+%   Parameter 'frame_length_s' indicates the length of each frame (second).
+%       It must be a double, and it should be no less than parameter 'non_overlap_length_s'.
+%
+%   Parameter 'non_overlap_length_s' indicates the length of the non-overlaping part of a frame (second).
+%       It must be a double.
+%
+%   Result of sampling points in a frame must be an integer.
+%       It means that multiplication of parameter 'frame_length_s'
+%       and sampling rate of parameter 'wav_file' must be an integer.
+%       Otherwise, an error is thrown.
+%
+%   Result of sampling points in non-overlaping part of a frame must be an integer.
+%       It means that multiplication of parameter 'non_overlap_length_s'
+%       and sampling rate of parameter 'wav_file' must be an integer.
+%       Otherwise, an error is thrown.
+%
+%   ----------
+%
+%   Return value 'power' is a matrix with 2 columns:
+%       1st column is power. 2nd column is time (second).
 
 % check parameter
 if ~ischar(wav_file) || strcmp(wav_file, '')
-	error('Parameter 1 must be a non-empty string.');
+   error('Parameter 1 must be a non-empty string.');
 end
-if ~isfloat(frame_s)
+if ~isfloat(frame_length_s)
     error('Parameter 2 must be a double.');
 end
-if ~isfloat(non_overlap_s)
+if ~isfloat(non_overlap_length_s)
     error('Parameter 3 must be a double.');
 end
-if frame_s < non_overlap_s
+if frame_length_s < non_overlap_length_s
     error('Parameter 2 should be no less than parameter 3.');
 end
 
-% read .wav file
+% read wav file
 [wave, sample_rate, ~] = wavread(wav_file);
 
 % transform from second to point
-temp = sample_rate * frame_s;
+temp = sample_rate * frame_length_s;
 frame_point = floor(temp);
 if frame_point ~= temp
     error('Number of sampling points in a frame is not an integer.');
 end
-temp = sample_rate * non_overlap_s;
+temp = sample_rate * non_overlap_length_s;
 non_overlap_point = floor(temp);
 if non_overlap_point ~= temp
     error('Number of sampling points in non-overlaping part of a frame is not an integer.');
@@ -268,24 +322,34 @@ for index = 1 : 1 : frame_number
     select_end = index * non_overlap_point + (frame_point - non_overlap_point);
     select_begin = select_end - frame_point + 1;
     % This is the core formula.
-    power(index, 1) = sum(wave(select_begin : select_end).^ 2) / frame_s;
+    power(index, 1) = sum(wave(select_begin : select_end).^ 2) / frame_length_s;
 end
 
 % set time
 for index = 1 : frame_number
-    power(index, 2) = frame_s / 2 + (index - 1) * non_overlap_s;
+    power(index, 2) = frame_length_s / 2 + (index - 1) * non_overlap_length_s;
 end
 
 end
 
 function sharpness = audio_sharpness(power)
-%CACULATE SHARPNESS of AUDIO WAVE
+%CACULATE SHARPNESS
 %
 %   sharpness = audio_sharpness(power)
-%       Parameter 'power' must be the result of function 'audio_power'.
-%       Return value 'sharpness' is a matrix with 2 columns:
-%           1st column - sharpness
-%           2nd column - time (s)
+%
+%   ----------
+%
+%   Parameter 'power' must be the return value of function 'audio_power'.
+%       It must be a two-dimensional matrix.
+%
+%   ----------
+%
+%   Return value 'sharpness' is a matrix with 2 columns:
+%       1st column is sharpness. 2nd column is time (second).
+%
+%   ----------
+%
+%   Sharpness is defined as the first derivative of power.
 
 % check parameter
 if length(size(power)) ~= 2
@@ -296,9 +360,8 @@ end
 loop_end_index = length(power);
 sharpness = zeros(loop_end_index, 2);
 for index = 2 : loop_end_index
-    % Sharpness, defined as the mean positive first derivative of the waveform power.
-    % Because of the descrete data and the short time interval,
-    % interative differential method is used here to replace the derivation.
+    %   Because of the descrete data and the short time interval,
+    %       interative differential method is used here to replace derivation.
     sharpness(index, 1) = (power(index, 1) - power(index - 1, 1)) / ...
                             (power(index, 2) - power(index - 1, 2));
 end
@@ -307,13 +370,31 @@ sharpness(:, 2) = power(:, 2);
 
 end
 
-function object_data = sps_rebuild(source_data, frame_length_s, non_overlap_length_s)
-%REBUILD of SOUND INTENSITY, POWER and SHARPNESS by MEAN
+function object_data = sps_reshape(source_data, frame_length_s, non_overlap_length_s)
+%RESHAPE SOUND INTENSITY, POWER and SHARPNESS by MEAN
 %
-%   object_data = sps_reconstruct(source_data, frame_length_s, non_overlap_s)
-%       Parameter 'data' must be the result of function 'audio_sound_intensity',
-%           function 'audio_power' or function 'audio_sharpness'.
-%       Return value 'result' is a column vector, no longer include time information.
+%   object_data = sps_reshape(source_data, frame_length_s, non_overlap_length_s)
+%
+%   ----------
+%
+%   Parameter 'data' must be the return value of function 'audio_sound_intensity', 'power' or 'audio_sharpness'.
+%       It must be a two-dimensional matrix
+%
+%   Parameter 'frame_length_s' indicates the length of each frame (second).
+%       It must be a double, and it should be no less than parameter 'non_overlap_length_s'.
+%
+%   Parameter 'non_overlap_length_s' indicates the length of the non-overlaping part of a frame (second).
+%       It must be a double.
+%
+%   ----------
+%
+%   Return value 'object_data' is a column vector. It no longer includes time information.
+%
+%   ----------
+%
+%   The data number of features of sound intensity, power and sharpness might be different
+%       to other features. In order to put all features into a matrix,
+%       these features should be reshaped by using this function.
 
 % check parameter
 if length(size(source_data)) ~= 2
@@ -362,8 +443,12 @@ end
 function fluctuation_centroid = audio_fluctuation_centroid(d_fluc)
 %CACULATE FLUCTUATION CENTROID of A FRAME
 %
-% This function is written originally by Wang Deqing <deqing.wang@foxmail.com>.
-% Some modifications have been added.
+%   fluctuation_centroid = audio_fluctuation_centroid(d_fluc)
+%
+%   ----------
+%
+%   This function is witten originally by Wang Deqing <deqing.wang@foxmail.com>.
+%       Some modifications have been added.
 
 fram_num = size(d_fluc, 2);
 window_length = size(d_fluc, 1);
@@ -379,8 +464,12 @@ end
 function fluctuation_entropy = audio_fluctuation_entropy(d_fluc)
 %CACULATE FLUCTUATION ENTROPY of A FRAME
 %
-% This function is written originally by Wang Deqing <deqing.wang@foxmail.com>.
-% Some modifications have been added.
+%   fluctuation_entropy = audio_fluctuation_entropy(d_fluc)
+%
+%   ----------
+%
+%   This function is witten originally by Wang Deqing <deqing.wang@foxmail.com>.
+%       Some modifications have been added.
 
 d_fluc_abs = abs(d_fluc);
 summat = repmat(sum(d_fluc_abs) + repmat(eps, ...
