@@ -31,7 +31,7 @@ function [features, sound_intensity, power, sharpness, title] = zzc_music(wav_fi
 %
 %   ----------
 %
-%   Running Environment: Matlab R2012a, MIRtoolbox 1.6
+%   Running Environment: MATLAB R2012a, MIRtoolbox 1.6
 
 % check parameter
 if nargin == 1
