@@ -59,6 +59,7 @@ end
 
 % Sound Intensity
 sound_intensity = audio_sound_intensity(wav_file);
+sound_intensity(isnan(sound_intensity)) = 0;
 data_sound_intensity = sps_reshape(sound_intensity, frame_length_s, non_overlap_length_s);
 
 %   Power
@@ -71,10 +72,12 @@ data_sound_intensity = sps_reshape(sound_intensity, frame_length_s, non_overlap_
 %
 %   A little modify is included: overlapping time is 20 ms.
 power = audio_power(wav_file, 0.05, 0.02);
+power(isnan(power)) = 0;
 data_power = sps_reshape(power, frame_length_s, non_overlap_length_s);
 
 % Sharpness
 sharpness = audio_sharpness(power);
+sharpness(isnan(sharpness)) = 0;
 data_sharpness = sps_reshape(sharpness, frame_length_s, non_overlap_length_s);
 
 % frame
@@ -156,6 +159,9 @@ end
 for index = 1 : size(features, 1)
     features(index, 11) = data_sharpness(index);
 end
+features(isnan(features)) = 0;
+
+% title
 title = {'spectral_centroid', 'spectral_entropy', 'spectral_flux', ...
     'key_clarity', 'mode', 'fluctuation_centroid', ...
     'fluctuation_entropy', 'pulse_clarity', ...
