@@ -71,12 +71,12 @@ data_sound_intensity = sps_reshape(sound_intensity, frame_length_s, non_overlap_
 %       to Examine Brain Responses to Naturalistic Music
 %
 %   A little modify is included: overlapping time is 20 ms.
-power = audio_power(wav_file, 0.05, 0.02);
+[power, point_per_frame] = audio_power(wav_file, 0.05, 0.02);
 power(isnan(power)) = 0;
 data_power = sps_reshape(power, frame_length_s, non_overlap_length_s);
 
 % Sharpness
-sharpness = audio_sharpness(power);
+sharpness = audio_sharpness(power, point_per_frame);
 sharpness(isnan(sharpness)) = 0;
 data_sharpness = sps_reshape(sharpness, frame_length_s, non_overlap_length_s);
 
@@ -261,10 +261,10 @@ sound_intensity(:, 2) = sound_intensity(:, 2) / sample_rate;
 
 end
 
-function power = audio_power(wav_file, frame_length_s, non_overlap_length_s)
+function [power, point_per_frame] = audio_power(wav_file, frame_length_s, non_overlap_length_s)
 %CACULATE POWER of WAV FILE
 %
-%   power = audio_power(wav_file, frame_length_s, non_overlap_length_s)
+%   [power, point_per_frame] = audio_power(wav_file, frame_length_s, non_overlap_length_s)
 %
 %   ----------
 %
@@ -290,6 +290,8 @@ function power = audio_power(wav_file, frame_length_s, non_overlap_length_s)
 %
 %   Return value 'power' is a matrix with 2 columns:
 %       1st column is power. 2nd column is time (second).
+%
+%   Return value 'point_per_frame' indicates number of points in a frame.
 
 % check parameter
 if ~ischar(wav_file) || strcmp(wav_file, '')
@@ -309,14 +311,14 @@ end
 [wave, sample_rate, ~] = wavread(wav_file);
 
 % transform from second to point
-temp = sample_rate * frame_length_s;
-frame_point = floor(temp);
-if frame_point ~= temp
+point_per_frame = sample_rate * frame_length_s;
+frame_point = floor(point_per_frame);
+if frame_point ~= point_per_frame
     error('Number of sampling points in a frame is not an integer.');
 end
-temp = sample_rate * non_overlap_length_s;
-non_overlap_point = floor(temp);
-if non_overlap_point ~= temp
+point_per_frame = sample_rate * non_overlap_length_s;
+non_overlap_point = floor(point_per_frame);
+if non_overlap_point ~= point_per_frame
     error('Number of sampling points in non-overlaping part of a frame is not an integer.');
 end
 
@@ -338,15 +340,18 @@ end
 
 end
 
-function sharpness = audio_sharpness(power)
+function sharpness = audio_sharpness(power, point_per_frame)
 %CACULATE SHARPNESS
 %
-%   sharpness = audio_sharpness(power)
+%   sharpness = audio_sharpness(power, point_per_frame)
 %
 %   ----------
 %
-%   Parameter 'power' must be the return value of function 'audio_power'.
+%   Parameter 'power' must be the return value 'power' of function 'audio_power'.
 %       It must be a two-dimensional matrix.
+%
+%   Parameter 'point_per_frame' must be the return value 'point_per_frame' of function 'audio_power'.
+%       It must be a double.
 %
 %   ----------
 %
@@ -359,7 +364,10 @@ function sharpness = audio_sharpness(power)
 
 % check parameter
 if length(size(power)) ~= 2
-    error('Parameter must be a two-dimensional matrix.');
+    error('Parameter 1 must be a two-dimensional matrix.');
+end
+if ~isfloat(point_per_frame)
+    error('Parameter 2 must be a double.');
 end
 
 % calculate sharpness
@@ -368,8 +376,7 @@ sharpness = zeros(loop_end_index, 2);
 for index = 2 : loop_end_index
     %   Because of the descrete data and the short time interval,
     %       interative differential method is used here to replace derivation.
-    sharpness(index, 1) = (power(index, 1) - power(index - 1, 1)) / ...
-                            (power(index, 2) - power(index - 1, 2));
+    sharpness(index, 1) = (power(index, 1) - power(index - 1, 1)) / point_per_frame;
 end
 sharpness(1, 1) = sharpness(2, 1);
 sharpness(:, 2) = power(:, 2);
