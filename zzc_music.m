@@ -328,7 +328,7 @@ for index = 1 : 1 : frame_number
     select_end = index * non_overlap_point + (frame_point - non_overlap_point);
     select_begin = select_end - frame_point + 1;
     % This is the core formula.
-    power(index, 1) = sum(wave(select_begin : select_end).^ 2) / frame_length_s;
+    power(index, 1) = mean(wave(select_begin : select_end) .^ 2);
 end
 
 % set time
