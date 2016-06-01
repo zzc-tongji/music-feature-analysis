@@ -1,6 +1,7 @@
 # Music Feature Analysis #
 
 ### Introduction ###
+
 This repo is created in April 2016. It is a part of my graduation project (correlation between music features and EEG).  
 
 ### Environment ###
@@ -10,11 +11,8 @@ This repo is created in April 2016. It is a part of my graduation project (corre
 
 ### Script ###
 
-Script 'zzc_music.m' can be used to extract some features of the music, such as:  
+Script 'zzc_music.m' can be used to extract some features of music, such as:  
 
-* sound intensity  
-* power  
-* sharpness  
 * spectral centroid  
 * spectral entropy  
 * spectral flux  
@@ -22,6 +20,10 @@ Script 'zzc_music.m' can be used to extract some features of the music, such as:
 * mode  
 * fluctuation centroid  
 * fluctuation entropy  
+* pulse clarity  
+* sound intensity  
+* power  
+* sharpness  
 
 Script 'zzc_pure_tone.m' can be used to generate pure tone of any frequency.  
 
