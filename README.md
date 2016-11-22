@@ -31,4 +31,4 @@ Script 'zzc_mean_compare.m' can be used to compare the average of each feature i
 
 ### Other ###
 
-* All lines end up with CRLF (Windows).  
+* There is a CRLF (Windows) at the end of each line.  
