@@ -7,7 +7,7 @@ This repo is created in April 2016. It is a part of my graduation project (corre
 ### Environment ###
 
 * MATLAB R2012a  
-* [MIRtoolbox 1.6](https://www.jyu.fi/hum/laitokset/musiikki/en/research/coe/materials/mirtoolbox) (Click [here](https://1drv.ms/u/s!ApNqBU0-Wme0jANBcmsqVUDcoXV8) to download)  
+* [MIRtoolbox 1.6](https://www.jyu.fi/hum/laitokset/musiikki/en/research/coe/materials/mirtoolbox) (Click [here](https://file.zzc.icu/github.com/zzc-tongji/music-feature-analysis/MIRtoolbox1.6.zip) to download)  
 
 ### Script ###
 
